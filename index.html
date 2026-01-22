@@ -2,8 +2,8 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiquidGlass Pro | Studio Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LiquidGlass Pro | Mobile Studio</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,10 +13,10 @@
         :root {
             --page-width: 210mm;
             --page-height: 297mm;
-            --glass-sheet: rgba(255, 255, 255, 0.82); /* Folha branca LiquidGlass */
+            --glass-sheet: rgba(255, 255, 255, 0.85);
             --glass-stroke: rgba(255, 255, 255, 0.4);
             --accent: #0071e3;
-            --border-radius: 25px; /* Pontas arredondadas solicitadas */
+            --border-radius: 25px;
         }
 
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -28,74 +28,91 @@
             color: #333;
         }
 
-        /* Cortina de Cetim Preta Reta ao Fundo */
+        /* Cortina de Cetim Preta Reta */
         body::before {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, 
-                #000 0%, #0a0a0a 10%, #000 20%, #0a0a0a 30%, #000 40%, 
-                #0a0a0a 50%, #000 60%, #0a0a0a 70%, #000 80%, #0a0a0a 90%, #000 100%);
+            background: linear-gradient(90deg, #000 0%, #0a0a0a 10%, #000 20%, #0a0a0a 30%, #000 40%, #0a0a0a 50%, #000 60%, #0a0a0a 70%, #000 80%, #0a0a0a 90%, #000 100%);
             opacity: 0.4; pointer-events: none; z-index: -1;
         }
 
         header {
-            padding: 20px; display: flex; justify-content: center;
+            padding: 10px; display: flex; justify-content: center;
             position: fixed; width: 100%; top: 0; z-index: 1000;
         }
 
         .toolbar {
-            background: rgba(25, 25, 25, 0.9);
+            background: rgba(25, 25, 25, 0.95);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 25px; border-radius: 50px;
-            display: flex; align-items: center; gap: 15px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            padding: 8px 15px; border-radius: 50px;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 95%; overflow-x: auto; /* Scroll horizontal se os itens não couberem no mobile */
         }
 
-        .group { display: flex; align-items: center; gap: 8px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 12px; }
+        .group { display: flex; align-items: center; gap: 5px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 8px; }
         .group:last-child { border-right: none; }
 
         button, select {
-            background: transparent; border: none; padding: 8px; cursor: pointer;
-            border-radius: 8px; color: #eee; transition: 0.3s; font-size: 14px;
+            background: transparent; border: none; padding: 10px; cursor: pointer;
+            border-radius: 12px; color: #eee; transition: 0.2s; font-size: 14px;
+            white-space: nowrap;
         }
 
-        button:hover { background: rgba(255,255,255,0.15); color: #fff; }
-        select { background: rgba(255,255,255,0.1); color: #fff; outline: none; }
+        button:active { background: rgba(255,255,255,0.2); }
+        select { background: rgba(255,255,255,0.05); color: #fff; max-width: 100px; }
 
         main {
-            flex: 1; overflow-y: overlay; padding: 120px 0 100px;
-            display: flex; flex-direction: column; align-items: center; gap: 40px;
+            flex: 1; overflow-y: auto; padding: 80px 15px 100px;
+            display: flex; flex-direction: column; align-items: center; gap: 25px;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* Página com pontas arredondadas e LiquidGlass */
+        /* Página Responsiva */
         .page {
             background: var(--glass-sheet);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             width: var(--page-width);
             height: var(--page-height);
             min-height: var(--page-height);
-            padding: 25mm;
+            padding: 20mm;
             border: 1px solid var(--glass-stroke);
-            border-radius: var(--border-radius); /* Aplicação das pontas arredondadas */
-            box-shadow: 0 25px 80px rgba(0,0,0,0.35);
+            border-radius: var(--border-radius);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
             outline: none; line-height: 1.6; font-size: 12pt;
             color: #1d1d1f;
             position: relative;
             overflow: hidden;
             word-wrap: break-word;
+            transform-origin: top center;
         }
 
-        /* Fontes Dinâmicas */
+        /* Media Query para Mobile */
+        @media screen and (max-width: 215mm) {
+            .page {
+                width: 95vw; /* Ocupa quase toda a largura da tela */
+                height: auto; /* No mobile, a página cresce com o conteúdo para melhor leitura */
+                min-height: 80vh;
+                padding: 15mm 10mm;
+                font-size: 11pt;
+            }
+            main { padding-top: 70px; }
+            .toolbar { gap: 5px; padding: 5px 10px; }
+            button { padding: 8px; }
+        }
+
         .f-space { font-family: 'Space Mono', monospace; }
         .f-inter { font-family: 'Inter', sans-serif; }
         .f-code { font-family: 'JetBrains Mono', monospace; }
         .f-serif { font-family: 'Lora', serif; }
 
         footer {
-            padding: 10px 40px; font-size: 11px; color: #888;
+            padding: 10px 20px; font-size: 10px; color: #aaa;
             background: rgba(10, 10, 10, 0.98); border-top: 1px solid rgba(255,255,255,0.1);
             display: flex; justify-content: space-between; align-items: center;
+            z-index: 1001;
         }
     </style>
 </head>
@@ -105,50 +122,47 @@
         <div class="toolbar">
             <div class="group">
                 <select id="fontFamily" onchange="applyFont(this.value)">
-                    <option value="f-inter">Inter UI</option>
-                    <option value="f-space">Space Mono</option>
-                    <option value="f-code">JetBrains Mono</option>
-                    <option value="f-serif">Lora Serif</option>
+                    <option value="f-inter">Inter</option>
+                    <option value="f-space">Space</option>
+                    <option value="f-code">Code</option>
+                    <option value="f-serif">Serif</option>
                 </select>
             </div>
 
             <div class="group">
-                <button onclick="exec('bold')" title="Negrito"><i class="fa fa-bold"></i></button>
-                <button onclick="exec('italic')" title="Itálico"><i class="fa fa-italic"></i></button>
-                <button onclick="exec('underline')" title="Sublinhado"><i class="fa fa-underline"></i></button>
-                <button onclick="addNewPage()" title="Nova Página"><i class="fa fa-plus-circle"></i></button>
+                <button onclick="exec('bold')"><i class="fa fa-bold"></i></button>
+                <button onclick="exec('italic')"><i class="fa fa-italic"></i></button>
+                <button onclick="addNewPage()"><i class="fa fa-plus-circle"></i></button>
             </div>
 
             <div class="group">
-                <button onclick="exportToPDF()" style="color: #ff453a;"><i class="fa fa-file-pdf"></i> Exportar</button>
-                <button onclick="saveDoc()" style="color: var(--accent); font-weight: 600;">Salvar</button>
+                <button onclick="exportToPDF()" style="color: #ff453a;"><i class="fa fa-file-pdf"></i></button>
+                <button onclick="saveDoc()" style="color: var(--accent); font-weight: 600;"><i class="fa fa-save"></i></button>
             </div>
         </div>
     </header>
 
     <main id="document-container">
         <div class="page" contenteditable="true" id="p1">
-            <h1>LiquidGlass Pro</h1>
-            <p>Editor Studio com páginas arredondadas e fundo cinza sóbrio.</p>
+            <h1>Studio Mobile</h1>
+            <p>Toque para começar a escrever seu projeto em LiquidGlass.</p>
         </div>
     </main>
 
     <footer>
-        <div id="stats">Páginas: 1 | Palavras: 0</div>
-        <div>LIQUIDGLASS PRO | CINZA STUDIO EDITION</div>
-        <div id="status">Sincronizado</div>
+        <div id="stats">Pgs: 1</div>
+        <div>LIQUIDGLASS MOBILE</div>
+        <div id="status">Ok</div>
     </footer>
 
     <script>
         const container = document.getElementById('document-container');
 
-        function exec(cmd) {
-            document.execCommand(cmd, false, null);
-        }
+        function exec(cmd) { document.execCommand(cmd, false, null); }
 
         function applyFont(fontClass) {
             document.body.className = fontClass;
-            localStorage.setItem('pref_font_v5', fontClass);
+            localStorage.setItem('pref_font_mobile', fontClass);
         }
 
         function addNewPage() {
@@ -160,11 +174,9 @@
             updateStats();
         }
 
-        // Sistema de navegação Backspace e Transbordamento
+        // Navegação Backspace e Transbordamento (Desktop & Mobile)
         container.addEventListener('keydown', (e) => {
             const activePage = e.target;
-
-            // Deletar página ao usar Backspace no início
             if (e.key === 'Backspace' && activePage.innerText.trim().length === 0) {
                 const prevPage = activePage.previousElementSibling;
                 if (prevPage && prevPage.classList.contains('page')) {
@@ -185,13 +197,10 @@
 
         container.addEventListener('input', (e) => {
             const activePage = e.target;
-            
-            // Criar nova página automaticamente se o conteúdo transbordar
-            if (activePage.scrollHeight > activePage.offsetHeight) {
+            // Apenas cria nova página automaticamente se NÃO for mobile (em telas grandes)
+            if (window.innerWidth > 800 && activePage.scrollHeight > activePage.offsetHeight) {
                 if (activePage === container.lastElementChild) {
                     addNewPage();
-                } else {
-                    activePage.nextElementSibling.focus();
                 }
             }
             updateStats();
@@ -199,52 +208,43 @@
 
         function updateStats() {
             const pages = container.querySelectorAll('.page').length;
-            const text = container.innerText.trim();
-            const words = text ? text.split(/\s+/).length : 0;
-            document.getElementById('stats').innerText = `Páginas: ${pages} | Palavras: ${words}`;
+            document.getElementById('stats').innerText = `Pgs: ${pages}`;
         }
 
         function exportToPDF() {
             const pages = document.querySelectorAll('.page');
-            
-            // Ajuste temporário para PDF profissional (sem transparência)
             pages.forEach(p => { 
                 p.style.background = "white"; 
                 p.style.backdropFilter = "none";
-                p.style.borderRadius = "0"; // PDF padrão não costuma ter bordas arredondadas, mas pode manter se preferir
+                p.style.width = "210mm"; // Força tamanho A4 no PDF
             });
 
             const opt = {
                 margin: 0,
-                filename: 'documento-liquidglass.pdf',
-                html2canvas: { scale: 2 },
+                filename: 'studio-mobile.pdf',
+                html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(container).save().then(() => {
-                // Restaurar estética LiquidGlass Studio
                 pages.forEach(p => { 
                     p.style.background = ""; 
                     p.style.backdropFilter = "";
-                    p.style.borderRadius = "";
+                    p.style.width = ""; 
                 });
             });
         }
 
         function saveDoc() {
-            localStorage.setItem('liquid_glass_v5', container.innerHTML);
-            const status = document.getElementById('status');
-            status.innerText = "Salvo!";
-            setTimeout(() => status.innerText = "Sincronizado", 2000);
+            localStorage.setItem('liquid_glass_mobile', container.innerHTML);
+            document.getElementById('status').innerText = "Salvo!";
+            setTimeout(() => document.getElementById('status').innerText = "Ok", 2000);
         }
 
         window.onload = () => {
-            const saved = localStorage.getItem('liquid_glass_v5');
-            const savedFont = localStorage.getItem('pref_font_v5');
-            if (saved) {
-                container.innerHTML = saved;
-                updateStats();
-            }
+            const saved = localStorage.getItem('liquid_glass_mobile');
+            const savedFont = localStorage.getItem('pref_font_mobile');
+            if (saved) container.innerHTML = saved;
             if (savedFont) {
                 applyFont(savedFont);
                 document.getElementById('fontFamily').value = savedFont;
