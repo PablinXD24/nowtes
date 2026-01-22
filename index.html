@@ -14,7 +14,7 @@
         :root {
             --page-width: 210mm;
             --page-height: 297mm;
-            --glass-sheet: rgba(255, 255, 255, 0.85);
+            --glass-sheet: rgba(255, 255, 255, 0.88);
             --glass-stroke: rgba(255, 255, 255, 0.4);
             --accent: #0071e3;
             --border-radius: 25px;
@@ -42,7 +42,7 @@
         }
 
         .toolbar {
-            background: rgba(25, 25, 25, 0.95);
+            background: rgba(20, 20, 20, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.1);
@@ -58,16 +58,15 @@
         button, select {
             background: transparent; border: none; padding: 10px; cursor: pointer;
             border-radius: 12px; color: #eee; transition: 0.2s; font-size: 14px;
-            white-space: nowrap;
         }
 
         button:active { background: rgba(255,255,255,0.2); }
-        select { background: rgba(255,255,255,0.05); color: #fff; max-width: 80px; }
+        select { background: rgba(255,255,255,0.05); color: #fff; max-width: 80px; outline: none; }
 
         main {
             flex: 1; overflow-y: auto; padding: 80px 15px 100px;
             display: flex; flex-direction: column; align-items: center; gap: 25px;
-            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
 
         .page {
@@ -77,7 +76,7 @@
             width: var(--page-width);
             height: var(--page-height);
             min-height: var(--page-height);
-            padding: 20mm;
+            padding: 25mm;
             border: 1px solid var(--glass-stroke);
             border-radius: var(--border-radius);
             box-shadow: 0 15px 50px rgba(0,0,0,0.3);
@@ -86,29 +85,47 @@
             position: relative; overflow: hidden; word-wrap: break-word;
         }
 
-        @media screen and (max-width: 215mm) {
-            .page { width: 95vw; height: auto; min-height: 80vh; padding: 15mm 10mm; font-size: 11pt; }
-            main { padding-top: 70px; }
+        /* Estilo da Mini Folha para o Story (Oculta na interface) */
+        #story-render-box {
+            position: absolute; left: -9999px;
+            width: 1080px; height: 1920px; /* Proporção Story Instagram */
+            display: flex; align-items: center; justify-content: center;
+            background: transparent;
         }
 
-        /* Estilos de Fontes */
+        .mini-glass-page {
+            width: 800px; padding: 60px;
+            background: rgba(255, 255, 255, 0.15); /* Estilo LiquidGlass apenas nos stories */
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: white; font-size: 42px; text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        @media screen and (max-width: 215mm) {
+            .page { width: 95vw; height: auto; min-height: 80vh; padding: 15mm 10mm; font-size: 11pt; }
+        }
+
         .f-space { font-family: 'Space Mono', monospace; }
         .f-inter { font-family: 'Inter', sans-serif; }
         .f-code { font-family: 'JetBrains Mono', monospace; }
         .f-serif { font-family: 'Lora', serif; }
 
         footer {
-            padding: 10px 20px; font-size: 10px; color: #aaa;
+            padding: 10px 20px; font-size: 10px; color: #888;
             background: rgba(10, 10, 10, 0.98); border-top: 1px solid rgba(255,255,255,0.1);
             display: flex; justify-content: space-between; align-items: center;
             z-index: 1001;
         }
-
-        /* Feedback Visual para captura */
-        .capturing { border: none !important; box-shadow: none !important; }
     </style>
 </head>
 <body class="f-inter">
+
+    <div id="story-render-box">
+        <div class="mini-glass-page" id="mini-page"></div>
+    </div>
 
     <header>
         <div class="toolbar">
@@ -127,7 +144,7 @@
             </div>
 
             <div class="group">
-                <button onclick="shareToStories()" style="color: #e4405f;"><i class="fa-brands fa-instagram"></i> Stories</button>
+                <button onclick="generateStory()" style="color: #ff007f;"><i class="fa-brands fa-instagram"></i> Story</button>
                 <button onclick="exportToPDF()" style="color: #ff453a;"><i class="fa fa-file-pdf"></i></button>
                 <button onclick="saveDoc()" style="color: var(--accent);"><i class="fa fa-save"></i></button>
             </div>
@@ -137,13 +154,13 @@
     <main id="document-container">
         <div class="page" contenteditable="true" id="p1">
             <h1>LiquidGlass Pro</h1>
-            <p>Escreva seu roteiro e compartilhe diretamente nos stories com um toque.</p>
+            <p>Escreva seu roteiro aqui. No PDF ele sai A4, no Story ele vira uma Mini-Page flutuante.</p>
         </div>
     </main>
 
     <footer>
         <div id="stats">Pgs: 1</div>
-        <div>LIQUIDGLASS STUDIO</div>
+        <div>CINZA STUDIO | RESPONSIVO</div>
         <div id="status">Ok</div>
     </footer>
 
@@ -154,7 +171,8 @@
 
         function applyFont(fontClass) {
             document.body.className = fontClass;
-            localStorage.setItem('pref_font_final', fontClass);
+            document.getElementById('mini-page').className = "mini-glass-page " + fontClass;
+            localStorage.setItem('liquid_pref_font', fontClass);
         }
 
         function addNewPage() {
@@ -166,47 +184,48 @@
             updateStats();
         }
 
-        // Compartilhar nos Stories (Estilo Letterboxd)
-        async function shareToStories() {
-            const activePage = document.activeElement.closest('.page') || container.firstElementChild;
+        // FUNÇÃO DE STORY: CRIA MINI FOLHA LIQUIDGLASS
+        async function generateStory() {
             const status = document.getElementById('status');
-            status.innerText = "Preparando...";
-
+            status.innerText = "Renderizando...";
+            
+            const miniPage = document.getElementById('mini-page');
+            const activeContent = window.getSelection().anchorNode ? 
+                                 (window.getSelection().anchorNode.parentElement.closest('.page') || container.firstElementChild) : 
+                                 container.firstElementChild;
+            
+            // Copia o texto para a mini folha
+            miniPage.innerHTML = activeContent.innerHTML;
+            
+            const renderBox = document.getElementById('story-render-box');
+            
             try {
-                const canvas = await html2canvas(activePage, {
+                const canvas = await html2canvas(renderBox, {
                     backgroundColor: null,
-                    scale: 2,
-                    useCORS: true,
-                    borderRadius: 25
+                    scale: 1,
+                    logging: false,
+                    useCORS: true
                 });
 
                 canvas.toBlob(async (blob) => {
-                    const file = new File([blob], 'story.png', { type: 'image/png' });
-                    
+                    const file = new File([blob], 'liquid-story.png', { type: 'image/png' });
                     if (navigator.share) {
-                        await navigator.share({
-                            files: [file],
-                            title: 'Meu LiquidGlass Roteiro',
-                            text: 'Escrito no LiquidGlass Pro'
-                        });
-                        status.innerText = "Ok";
+                        await navigator.share({ files: [file], title: 'My Story' });
                     } else {
-                        // Fallback Desktop: Download da imagem
                         const link = document.createElement('a');
-                        link.download = 'liquidglass-story.png';
+                        link.download = 'liquid-story.png';
                         link.href = canvas.toDataURL();
                         link.click();
-                        status.innerText = "Baixado!";
                     }
+                    status.innerText = "Pronto!";
                 });
             } catch (err) {
-                console.error(err);
-                status.innerText = "Erro ao gerar";
+                status.innerText = "Erro";
             }
             setTimeout(() => status.innerText = "Ok", 2000);
         }
 
-        // Lógica de Teclado e Fluxo
+        // Navegação Backspace e Transbordamento
         container.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && e.target.innerText.trim().length === 0) {
                 const prev = e.target.previousElementSibling;
@@ -237,19 +256,19 @@
         }
 
         function exportToPDF() {
-            const opt = { margin: 0, filename: 'studio.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } };
+            const opt = { margin: 0, filename: 'roteiro.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } };
             html2pdf().set(opt).from(container).save();
         }
 
         function saveDoc() {
-            localStorage.setItem('liquid_glass_data', container.innerHTML);
+            localStorage.setItem('liquid_glass_vFinal', container.innerHTML);
             document.getElementById('status').innerText = "Salvo!";
             setTimeout(() => document.getElementById('status').innerText = "Ok", 2000);
         }
 
         window.onload = () => {
-            const saved = localStorage.getItem('liquid_glass_data');
-            const savedFont = localStorage.getItem('pref_font_final');
+            const saved = localStorage.getItem('liquid_glass_vFinal');
+            const savedFont = localStorage.getItem('liquid_pref_font');
             if (saved) container.innerHTML = saved;
             if (savedFont) {
                 applyFont(savedFont);
