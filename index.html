@@ -43,8 +43,7 @@
 
         .toolbar {
             background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.1);
             padding: 8px 15px; border-radius: 50px;
             display: flex; align-items: center; gap: 8px;
@@ -71,8 +70,7 @@
 
         .page {
             background: var(--glass-sheet);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             width: var(--page-width);
             height: var(--page-height);
             min-height: var(--page-height);
@@ -81,28 +79,35 @@
             border-radius: var(--border-radius);
             box-shadow: 0 15px 50px rgba(0,0,0,0.3);
             outline: none; line-height: 1.6; font-size: 12pt;
-            color: #1d1d1f;
-            position: relative; overflow: hidden; word-wrap: break-word;
+            color: #1d1d1f; position: relative; overflow: hidden; word-wrap: break-word;
         }
 
-        /* Estilo da Mini Folha para o Story (Oculta na interface) */
+        /* CONTAINER EXCLUSIVO DOS STORIES (Renderização Invisível) */
         #story-render-box {
             position: absolute; left: -9999px;
-            width: 1080px; height: 1920px; /* Proporção Story Instagram */
-            display: flex; align-items: center; justify-content: center;
-            background: transparent;
+            width: 1080px; height: 1920px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: radial-gradient(circle at center, #2c2c2e 0%, #000 100%);
         }
 
         .mini-glass-page {
-            width: 800px; padding: 60px;
-            background: rgba(255, 255, 255, 0.15); /* Estilo LiquidGlass apenas nos stories */
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50px;
-            color: white; font-size: 42px; text-align: center;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            width: 850px; padding: 60px;
+            background: rgba(255, 255, 255, 0.2); /* Branco LiquidGlass Story */
+            backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 40px;
+            color: white; font-size: 38px; text-align: left;
+            box-shadow: 0 40px 120px rgba(0,0,0,0.6);
+            margin-bottom: 40px;
         }
+
+        .story-footer {
+            text-align: center; color: rgba(255,255,255,0.7);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .story-footer h2 { margin: 0; font-size: 32px; font-weight: 600; color: white; }
+        .story-footer p { margin: 5px 0 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase; }
 
         @media screen and (max-width: 215mm) {
             .page { width: 95vw; height: auto; min-height: 80vh; padding: 15mm 10mm; font-size: 11pt; }
@@ -125,6 +130,10 @@
 
     <div id="story-render-box">
         <div class="mini-glass-page" id="mini-page"></div>
+        <div class="story-footer">
+            <h2 id="story-title">Título do Documento</h2>
+            <p id="story-author">Autor do Texto</p>
+        </div>
     </div>
 
     <header>
@@ -153,19 +162,20 @@
 
     <main id="document-container">
         <div class="page" contenteditable="true" id="p1">
-            <h1>LiquidGlass Pro</h1>
-            <p>Escreva seu roteiro aqui. No PDF ele sai A4, no Story ele vira uma Mini-Page flutuante.</p>
+            <h1 id="doc-title-input">Meu Projeto</h1>
+            <p>Escreva seu conteúdo aqui...</p>
         </div>
     </main>
 
     <footer>
         <div id="stats">Pgs: 1</div>
-        <div>CINZA STUDIO | RESPONSIVO</div>
+        <div>STUDIO EDITION PRO</div>
         <div id="status">Ok</div>
     </footer>
 
     <script>
         const container = document.getElementById('document-container');
+        let authorName = localStorage.getItem('liquid_author') || "Seu Nome";
 
         function exec(cmd) { document.execCommand(cmd, false, null); }
 
@@ -184,40 +194,49 @@
             updateStats();
         }
 
-        // FUNÇÃO DE STORY: CRIA MINI FOLHA LIQUIDGLASS
+        // GERAÇÃO DO STORY ESTILO LETTERBOXD
         async function generateStory() {
             const status = document.getElementById('status');
-            status.innerText = "Renderizando...";
             
+            // Pergunta o nome se não existir
+            if (!localStorage.getItem('liquid_author')) {
+                const name = prompt("Qual seu nome para o Story?", authorName);
+                if (name) {
+                    authorName = name;
+                    localStorage.setItem('liquid_author', name);
+                }
+            }
+
+            status.innerText = "Preparando...";
             const miniPage = document.getElementById('mini-page');
-            const activeContent = window.getSelection().anchorNode ? 
-                                 (window.getSelection().anchorNode.parentElement.closest('.page') || container.firstElementChild) : 
-                                 container.firstElementChild;
+            const storyTitle = document.getElementById('story-title');
+            const storyAuthor = document.getElementById('story-author');
             
-            // Copia o texto para a mini folha
-            miniPage.innerHTML = activeContent.innerHTML;
-            
-            const renderBox = document.getElementById('story-render-box');
+            // Pega conteúdo da página ativa e o título (primeiro h1 encontrado)
+            const activePage = container.querySelector('.page:focus-within') || container.firstElementChild;
+            const docTitle = activePage.querySelector('h1')?.innerText || "Sem Título";
+
+            miniPage.innerHTML = activePage.innerHTML;
+            storyTitle.innerText = docTitle;
+            storyAuthor.innerText = authorName;
             
             try {
-                const canvas = await html2canvas(renderBox, {
-                    backgroundColor: null,
+                const canvas = await html2canvas(document.getElementById('story-render-box'), {
                     scale: 1,
-                    logging: false,
                     useCORS: true
                 });
 
                 canvas.toBlob(async (blob) => {
-                    const file = new File([blob], 'liquid-story.png', { type: 'image/png' });
+                    const file = new File([blob], 'story.png', { type: 'image/png' });
                     if (navigator.share) {
-                        await navigator.share({ files: [file], title: 'My Story' });
+                        await navigator.share({ files: [file] });
                     } else {
                         const link = document.createElement('a');
-                        link.download = 'liquid-story.png';
+                        link.download = 'story.png';
                         link.href = canvas.toDataURL();
                         link.click();
                     }
-                    status.innerText = "Pronto!";
+                    status.innerText = "Enviado!";
                 });
             } catch (err) {
                 status.innerText = "Erro";
@@ -225,7 +244,7 @@
             setTimeout(() => status.innerText = "Ok", 2000);
         }
 
-        // Navegação Backspace e Transbordamento
+        // Lógica Backspace e Transbordamento
         container.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && e.target.innerText.trim().length === 0) {
                 const prev = e.target.previousElementSibling;
@@ -256,23 +275,22 @@
         }
 
         function exportToPDF() {
-            const opt = { margin: 0, filename: 'roteiro.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } };
+            const opt = { margin: 0, filename: 'doc.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } };
             html2pdf().set(opt).from(container).save();
         }
 
         function saveDoc() {
-            localStorage.setItem('liquid_glass_vFinal', container.innerHTML);
+            localStorage.setItem('liquid_glass_v7', container.innerHTML);
             document.getElementById('status').innerText = "Salvo!";
             setTimeout(() => document.getElementById('status').innerText = "Ok", 2000);
         }
 
         window.onload = () => {
-            const saved = localStorage.getItem('liquid_glass_vFinal');
-            const savedFont = localStorage.getItem('liquid_pref_font');
+            const saved = localStorage.getItem('liquid_glass_v7');
             if (saved) container.innerHTML = saved;
-            if (savedFont) {
-                applyFont(savedFont);
-                document.getElementById('fontFamily').value = savedFont;
+            if (localStorage.getItem('liquid_pref_font')) {
+                applyFont(localStorage.getItem('liquid_pref_font'));
+                document.getElementById('fontFamily').value = localStorage.getItem('liquid_pref_font');
             }
         };
     </script>
