@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LiquidGlass Pro | Mobile Studio</title>
+    <title>LiquidGlass Pro | Studio Edition</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
@@ -46,9 +47,9 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.1);
             padding: 8px 15px; border-radius: 50px;
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; gap: 8px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 95%; overflow-x: auto; /* Scroll horizontal se os itens não couberem no mobile */
+            max-width: 95%; overflow-x: auto;
         }
 
         .group { display: flex; align-items: center; gap: 5px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 8px; }
@@ -61,7 +62,7 @@
         }
 
         button:active { background: rgba(255,255,255,0.2); }
-        select { background: rgba(255,255,255,0.05); color: #fff; max-width: 100px; }
+        select { background: rgba(255,255,255,0.05); color: #fff; max-width: 80px; }
 
         main {
             flex: 1; overflow-y: auto; padding: 80px 15px 100px;
@@ -69,11 +70,10 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Página Responsiva */
         .page {
             background: var(--glass-sheet);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             width: var(--page-width);
             height: var(--page-height);
             min-height: var(--page-height);
@@ -83,26 +83,15 @@
             box-shadow: 0 15px 50px rgba(0,0,0,0.3);
             outline: none; line-height: 1.6; font-size: 12pt;
             color: #1d1d1f;
-            position: relative;
-            overflow: hidden;
-            word-wrap: break-word;
-            transform-origin: top center;
+            position: relative; overflow: hidden; word-wrap: break-word;
         }
 
-        /* Media Query para Mobile */
         @media screen and (max-width: 215mm) {
-            .page {
-                width: 95vw; /* Ocupa quase toda a largura da tela */
-                height: auto; /* No mobile, a página cresce com o conteúdo para melhor leitura */
-                min-height: 80vh;
-                padding: 15mm 10mm;
-                font-size: 11pt;
-            }
+            .page { width: 95vw; height: auto; min-height: 80vh; padding: 15mm 10mm; font-size: 11pt; }
             main { padding-top: 70px; }
-            .toolbar { gap: 5px; padding: 5px 10px; }
-            button { padding: 8px; }
         }
 
+        /* Estilos de Fontes */
         .f-space { font-family: 'Space Mono', monospace; }
         .f-inter { font-family: 'Inter', sans-serif; }
         .f-code { font-family: 'JetBrains Mono', monospace; }
@@ -114,6 +103,9 @@
             display: flex; justify-content: space-between; align-items: center;
             z-index: 1001;
         }
+
+        /* Feedback Visual para captura */
+        .capturing { border: none !important; box-shadow: none !important; }
     </style>
 </head>
 <body class="f-inter">
@@ -131,27 +123,27 @@
 
             <div class="group">
                 <button onclick="exec('bold')"><i class="fa fa-bold"></i></button>
-                <button onclick="exec('italic')"><i class="fa fa-italic"></i></button>
                 <button onclick="addNewPage()"><i class="fa fa-plus-circle"></i></button>
             </div>
 
             <div class="group">
+                <button onclick="shareToStories()" style="color: #e4405f;"><i class="fa-brands fa-instagram"></i> Stories</button>
                 <button onclick="exportToPDF()" style="color: #ff453a;"><i class="fa fa-file-pdf"></i></button>
-                <button onclick="saveDoc()" style="color: var(--accent); font-weight: 600;"><i class="fa fa-save"></i></button>
+                <button onclick="saveDoc()" style="color: var(--accent);"><i class="fa fa-save"></i></button>
             </div>
         </div>
     </header>
 
     <main id="document-container">
         <div class="page" contenteditable="true" id="p1">
-            <h1>Studio Mobile</h1>
-            <p>Toque para começar a escrever seu projeto em LiquidGlass.</p>
+            <h1>LiquidGlass Pro</h1>
+            <p>Escreva seu roteiro e compartilhe diretamente nos stories com um toque.</p>
         </div>
     </main>
 
     <footer>
         <div id="stats">Pgs: 1</div>
-        <div>LIQUIDGLASS MOBILE</div>
+        <div>LIQUIDGLASS STUDIO</div>
         <div id="status">Ok</div>
     </footer>
 
@@ -162,7 +154,7 @@
 
         function applyFont(fontClass) {
             document.body.className = fontClass;
-            localStorage.setItem('pref_font_mobile', fontClass);
+            localStorage.setItem('pref_font_final', fontClass);
         }
 
         function addNewPage() {
@@ -174,19 +166,57 @@
             updateStats();
         }
 
-        // Navegação Backspace e Transbordamento (Desktop & Mobile)
-        container.addEventListener('keydown', (e) => {
-            const activePage = e.target;
-            if (e.key === 'Backspace' && activePage.innerText.trim().length === 0) {
-                const prevPage = activePage.previousElementSibling;
-                if (prevPage && prevPage.classList.contains('page')) {
-                    e.preventDefault();
-                    activePage.remove();
-                    prevPage.focus();
+        // Compartilhar nos Stories (Estilo Letterboxd)
+        async function shareToStories() {
+            const activePage = document.activeElement.closest('.page') || container.firstElementChild;
+            const status = document.getElementById('status');
+            status.innerText = "Preparando...";
+
+            try {
+                const canvas = await html2canvas(activePage, {
+                    backgroundColor: null,
+                    scale: 2,
+                    useCORS: true,
+                    borderRadius: 25
+                });
+
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'story.png', { type: 'image/png' });
                     
+                    if (navigator.share) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Meu LiquidGlass Roteiro',
+                            text: 'Escrito no LiquidGlass Pro'
+                        });
+                        status.innerText = "Ok";
+                    } else {
+                        // Fallback Desktop: Download da imagem
+                        const link = document.createElement('a');
+                        link.download = 'liquidglass-story.png';
+                        link.href = canvas.toDataURL();
+                        link.click();
+                        status.innerText = "Baixado!";
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+                status.innerText = "Erro ao gerar";
+            }
+            setTimeout(() => status.innerText = "Ok", 2000);
+        }
+
+        // Lógica de Teclado e Fluxo
+        container.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && e.target.innerText.trim().length === 0) {
+                const prev = e.target.previousElementSibling;
+                if (prev && prev.classList.contains('page')) {
+                    e.preventDefault();
+                    e.target.remove();
+                    prev.focus();
                     const range = document.createRange();
                     const sel = window.getSelection();
-                    range.selectNodeContents(prevPage);
+                    range.selectNodeContents(prev);
                     range.collapse(false);
                     sel.removeAllRanges();
                     sel.addRange(range);
@@ -196,54 +226,30 @@
         });
 
         container.addEventListener('input', (e) => {
-            const activePage = e.target;
-            // Apenas cria nova página automaticamente se NÃO for mobile (em telas grandes)
-            if (window.innerWidth > 800 && activePage.scrollHeight > activePage.offsetHeight) {
-                if (activePage === container.lastElementChild) {
-                    addNewPage();
-                }
+            if (window.innerWidth > 800 && e.target.scrollHeight > e.target.offsetHeight) {
+                if (e.target === container.lastElementChild) addNewPage();
             }
             updateStats();
         });
 
         function updateStats() {
-            const pages = container.querySelectorAll('.page').length;
-            document.getElementById('stats').innerText = `Pgs: ${pages}`;
+            document.getElementById('stats').innerText = `Pgs: ${container.querySelectorAll('.page').length}`;
         }
 
         function exportToPDF() {
-            const pages = document.querySelectorAll('.page');
-            pages.forEach(p => { 
-                p.style.background = "white"; 
-                p.style.backdropFilter = "none";
-                p.style.width = "210mm"; // Força tamanho A4 no PDF
-            });
-
-            const opt = {
-                margin: 0,
-                filename: 'studio-mobile.pdf',
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(container).save().then(() => {
-                pages.forEach(p => { 
-                    p.style.background = ""; 
-                    p.style.backdropFilter = "";
-                    p.style.width = ""; 
-                });
-            });
+            const opt = { margin: 0, filename: 'studio.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } };
+            html2pdf().set(opt).from(container).save();
         }
 
         function saveDoc() {
-            localStorage.setItem('liquid_glass_mobile', container.innerHTML);
+            localStorage.setItem('liquid_glass_data', container.innerHTML);
             document.getElementById('status').innerText = "Salvo!";
             setTimeout(() => document.getElementById('status').innerText = "Ok", 2000);
         }
 
         window.onload = () => {
-            const saved = localStorage.getItem('liquid_glass_mobile');
-            const savedFont = localStorage.getItem('pref_font_mobile');
+            const saved = localStorage.getItem('liquid_glass_data');
+            const savedFont = localStorage.getItem('pref_font_final');
             if (saved) container.innerHTML = saved;
             if (savedFont) {
                 applyFont(savedFont);
