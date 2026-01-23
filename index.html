@@ -18,7 +18,6 @@
             --letterboxd-green: #00e054;
         }
 
-        /* Variáveis para o Modo Escuro da PÁGINA (Folha) */
         body.dark-mode-page { 
             --page-bg: #181818; 
             --text-color: #f5f5f5; 
@@ -48,23 +47,23 @@
         header { padding: 15px; display: flex; justify-content: center; position: fixed; width: 100%; top: 0; z-index: 1000; }
         .toolbar { 
             background: var(--toolbar-bg); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); 
-            padding: 10px 25px; border-radius: 60px; display: flex; gap: 12px; align-items: center; 
-            box-shadow: 0 15px 50px rgba(0,0,0,0.6); max-width: 95%;
+            padding: 8px 20px; border-radius: 60px; display: flex; gap: 10px; align-items: center; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6); max-width: 98%; flex-wrap: wrap;
         }
         
-        .group { display: flex; gap: 8px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 12px; align-items: center; }
+        .group { display: flex; gap: 5px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 10px; align-items: center; }
         .group:last-child { border: none; }
 
         button, select, .file-btn { 
             background: rgba(255,255,255,0.05); border: none; color: #fff; cursor: pointer; 
-            height: 36px; border-radius: 18px; display: flex; align-items: center; 
-            justify-content: center; transition: 0.2s; font-size: 13px; padding: 0 12px; 
+            height: 32px; border-radius: 16px; display: flex; align-items: center; 
+            justify-content: center; transition: 0.2s; font-size: 12px; padding: 0 10px; 
         }
         button:hover { background: rgba(255,255,255,0.15); color: var(--accent); }
         .btn-active { background: var(--accent) !important; color: #000; }
-        .circle-btn { width: 36px; border-radius: 50%; padding: 0; }
+        .circle-btn { width: 32px; border-radius: 50%; padding: 0; }
 
-        input[type="color"] { border: none; width: 22px; height: 22px; cursor: pointer; background: none; }
+        input[type="color"] { border: none; width: 20px; height: 20px; cursor: pointer; background: none; padding: 0; margin: 0 5px; }
 
         /* ÁREA DO EDITOR */
         .workspace { flex: 1; padding-left: 100px; display: flex; flex-direction: column; }
@@ -79,7 +78,6 @@
         .mode-a4 { width: 210mm; min-height: 297mm; padding: 25mm; border-radius: 4px; font-size: 12pt; }
         .mode-letterboxd { width: 380px; min-height: auto; padding: 40px; border-radius: 35px; text-align: center; }
 
-        /* WIDGET UI */
         .widget-ui { display: none; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 20px; }
         .mode-letterboxd .widget-ui { display: block; }
         .rating-stars { color: var(--letterboxd-green); font-size: 26px; margin: 10px 0; display: block; }
@@ -108,44 +106,50 @@
         <header>
             <div class="toolbar">
                 <div class="group">
-                    <select id="mode-selector" onchange="updateProjectMode(this.value)" style="color: var(--accent); font-weight: 800; background: #222; width: 135px;">
-                        <option value="mode-a4">📄 MODO A4</option>
-                        <option value="mode-letterboxd">🎬 MODO STORY</option>
+                    <select id="mode-selector" onchange="updateProjectMode(this.value)" style="color: var(--accent); font-weight: 800; background: #222; width: 110px;">
+                        <option value="mode-a4">A4</option>
+                        <option value="mode-letterboxd">STORY</option>
                     </select>
-                </div>
-
-                <div class="group">
-                    <select onchange="exec('fontName', this.value)" style="width: 100px;">
+                    <select onchange="exec('fontName', this.value)" style="width: 80px;">
                         <option value="Inter">Inter</option>
                         <option value="Lora">Lora</option>
                         <option value="Playfair Display">Playfair</option>
                         <option value="JetBrains Mono">Mono</option>
                     </select>
-                    <select onchange="exec('fontSize', this.value)" style="width: 60px;">
-                        <option value="3">Size</option>
-                        <option value="1">P</option>
-                        <option value="3">M</option>
-                        <option value="5">G</option>
-                        <option value="7">XG</option>
-                    </select>
                 </div>
 
                 <div class="group">
-                    <button class="circle-btn" onclick="exec('bold')"><i class="fa fa-bold"></i></button>
-                    <button class="circle-btn" onclick="exec('italic')"><i class="fa fa-italic"></i></button>
+                    <button class="circle-btn" onclick="exec('bold')" title="Negrito"><i class="fa fa-bold"></i></button>
+                    <button class="circle-btn" onclick="exec('italic')" title="Itálico"><i class="fa fa-italic"></i></button>
+                    <button class="circle-btn" onclick="exec('underline')" title="Sublinhado"><i class="fa fa-underline"></i></button>
+                    <button class="circle-btn" onclick="exec('strikethrough')" title="Riscado"><i class="fa fa-strikethrough"></i></button>
+                </div>
+
+                <div class="group">
+                    <button class="circle-btn" onclick="exec('subscript')" title="Subscrito"><i class="fa fa-subscript"></i></button>
+                    <button class="circle-btn" onclick="exec('superscript')" title="Sobrescrito"><i class="fa fa-superscript"></i></button>
                     <input type="color" onchange="exec('foreColor', this.value)" title="Cor do Texto">
-                    <button class="circle-btn" onclick="toggleDarkMode()" title="Alternar Modo Escuro/Claro"><i class="fa fa-circle-half-stroke"></i></button>
                 </div>
 
                 <div class="group">
                     <button class="circle-btn" onclick="exec('justifyLeft')"><i class="fa fa-align-left"></i></button>
                     <button class="circle-btn" onclick="exec('justifyCenter')"><i class="fa fa-align-center"></i></button>
-                    <button class="circle-btn" onclick="exec('formatBlock', 'blockquote')" title="Citação"><i class="fa fa-quote-left"></i></button>
+                    <button class="circle-btn" onclick="exec('justifyRight')"><i class="fa fa-align-right"></i></button>
+                    <button class="circle-btn" onclick="exec('justifyFull')"><i class="fa fa-align-justify"></i></button>
                 </div>
 
                 <div class="group">
-                    <button class="circle-btn" onclick="toggleMusic()" title="Soundtrack"><i class="fa fa-wand-sparkles"></i></button>
-                    <button onclick="exportPro()" style="color: var(--letterboxd-green); font-weight: bold;"><i class="fa fa-paper-plane"></i> ENVIAR</button>
+                    <button class="circle-btn" onclick="exec('insertUnorderedList')" title="Lista"><i class="fa fa-list-ul"></i></button>
+                    <button class="circle-btn" onclick="exec('insertOrderedList')" title="Lista Numérica"><i class="fa fa-list-ol"></i></button>
+                    <button class="circle-btn" onclick="exec('formatBlock', 'blockquote')" title="Citação"><i class="fa fa-quote-left"></i></button>
+                    <button class="circle-btn" onclick="insertImagePrompt()" title="Inserir Imagem"><i class="fa fa-image"></i></button>
+                </div>
+
+                <div class="group">
+                    <button class="circle-btn" onclick="exec('removeFormat')" title="Limpar Formatação"><i class="fa fa-eraser"></i></button>
+                    <button class="circle-btn" onclick="toggleDarkMode()" title="Modo Escuro/Claro"><i class="fa fa-circle-half-stroke"></i></button>
+                    <button class="circle-btn" onclick="toggleMusic()" title="Trilha Sonora"><i class="fa fa-wand-sparkles"></i></button>
+                    <button onclick="exportPro()" style="color: var(--letterboxd-green); font-weight: bold;"><i class="fa fa-paper-plane"></i></button>
                     <button class="circle-btn" onclick="saveCurrent()"><i class="fa fa-save"></i></button>
                 </div>
             </div>
@@ -163,8 +167,8 @@
         </main>
 
         <footer>
-            <div id="save-status">Vassouras prontas...</div>
-            <div id="stats">LiquidGlass Elite | Modo de Edição Total Ativo</div>
+            <div id="save-status">Magia carregada...</div>
+            <div id="stats">LiquidGlass Elite | Editor Master</div>
         </footer>
     </div>
 
@@ -174,11 +178,19 @@
             'default': { name: 'Projeto 1', content: document.getElementById('editor').innerHTML, mode: 'mode-a4' }
         };
 
-        function exec(cmd, val = null) { document.execCommand(cmd, false, val); }
+        function exec(cmd, val = null) { 
+            document.execCommand(cmd, false, val); 
+            document.getElementById('editor').focus();
+        }
 
         function toggleDarkMode() { 
             document.body.classList.toggle('dark-mode-page'); 
-            document.getElementById('save-status').innerText = "Modo de cor alterado.";
+            document.getElementById('save-status').innerText = "Ambiente alterado.";
+        }
+
+        function insertImagePrompt() {
+            const url = prompt("Cole a URL da imagem:");
+            if(url) exec('insertImage', url);
         }
 
         function updateProjectMode(mode) {
@@ -214,7 +226,7 @@
         }
 
         function newFile() {
-            const name = prompt("Nome do projeto:");
+            const name = prompt("Nome da nova pergaminho:");
             if(name) {
                 const id = 'f' + Date.now();
                 files[id] = { name: name, content: '<div class="widget-ui" contenteditable="false"><div class="author-name">Análise por @seuusuario</div><h1 style="margin: 10px 0; font-size: 28px;">Título</h1><div class="rating-stars">★★★★★</div></div><div class="main-content">Nova escrita...</div>', mode: 'mode-a4' };
@@ -227,7 +239,7 @@
             files[currentFileId].content = document.getElementById('editor').innerHTML;
             files[currentFileId].mode = document.getElementById('mode-selector').value;
             saveAll();
-            document.getElementById('save-status').innerText = "Projeto salvo: " + new Date().toLocaleTimeString();
+            document.getElementById('save-status').innerText = "Feitiço salvo: " + new Date().toLocaleTimeString();
         }
 
         function saveAll() { localStorage.setItem('lg_master_v9', JSON.stringify(files)); }
