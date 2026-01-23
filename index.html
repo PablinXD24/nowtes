@@ -3,100 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiquidGlass Pro | Elite Edition</title>
+    <title>LiquidGlass Pro | Final Master</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Lora:ital,wght@0,400;0,700;1,400;1,700&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Lora:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
-            --page-width: 210mm;
-            --page-height: 297mm;
-            --glass-sheet: rgba(255, 255, 255, 0.92);
-            --toolbar-bg: rgba(20, 20, 20, 0.8);
+            --toolbar-bg: rgba(15, 15, 15, 0.95);
             --accent: #40bcf4;
-            --radius: 25px;
+            --page-bg: #ffffff;
+            --text-color: #1a1a1a;
+            --letterboxd-green: #00e054;
         }
 
-        body.dark-mode-page {
-            --glass-sheet: rgba(30, 33, 37, 0.96);
-            --text-main: #efefef;
+        /* Variáveis para o Modo Escuro da PÁGINA (Folha) */
+        body.dark-mode-page { 
+            --page-bg: #181818; 
+            --text-color: #f5f5f5; 
         }
 
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: #000; height: 100vh; display: flex; overflow: hidden; }
-
-        /* SIDEBAR VERTICAL (ESTILO TOOLBAR) */
-        aside {
-            display: flex; flex-direction: column; align-items: center; padding: 20px;
-            gap: 15px; position: relative; z-index: 100;
+        * { box-sizing: border-box; transition: background 0.3s, color 0.3s, transform 0.2s; }
+        
+        body { 
+            margin: 0; font-family: 'Inter', sans-serif; 
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); 
+            height: 100vh; display: flex; overflow: hidden; color: #fff;
         }
 
-        .sidebar-inner {
-            background: var(--toolbar-bg); backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.1); padding: 15px 10px;
-            border-radius: 40px; display: flex; flex-direction: column; gap: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5); max-height: 80vh; overflow-y: auto;
+        /* SIDEBAR FLUTUANTE */
+        aside { 
+            position: fixed; left: 25px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; align-items: center; z-index: 1100;
+        }
+        .sidebar-inner { 
+            background: var(--toolbar-bg); backdrop-filter: blur(25px); 
+            border: 1px solid rgba(255,255,255,0.1); padding: 12px; 
+            border-radius: 50px; display: flex; flex-direction: column; gap: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
-        .sidebar-inner::-webkit-scrollbar { display: none; }
-
-        /* TOOLBAR TOPO */
-        header {
-            padding: 20px; display: flex; justify-content: center;
-            position: fixed; width: calc(100% - 100px); left: 100px; top: 0; z-index: 1000;
+        /* TOOLBAR EXPANDIDA */
+        header { padding: 15px; display: flex; justify-content: center; position: fixed; width: 100%; top: 0; z-index: 1000; }
+        .toolbar { 
+            background: var(--toolbar-bg); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); 
+            padding: 10px 25px; border-radius: 60px; display: flex; gap: 12px; align-items: center; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6); max-width: 95%;
         }
-
-        .toolbar {
-            background: var(--toolbar-bg); backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.1); padding: 8px 18px;
-            border-radius: 50px; display: flex; gap: 12px; align-items: center;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
-        }
-
-        .group { display: flex; gap: 6px; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 12px; }
+        
+        .group { display: flex; gap: 8px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 12px; align-items: center; }
         .group:last-child { border: none; }
 
-        /* BOTÕES E INPUTS */
-        button, select, .file-btn {
-            background: rgba(255,255,255,0.05); border: none; color: #fff; cursor: pointer;
-            width: 42px; height: 42px; border-radius: 50%; display: flex; 
-            align-items: center; justify-content: center; transition: 0.3s; font-size: 14px;
+        button, select, .file-btn { 
+            background: rgba(255,255,255,0.05); border: none; color: #fff; cursor: pointer; 
+            height: 36px; border-radius: 18px; display: flex; align-items: center; 
+            justify-content: center; transition: 0.2s; font-size: 13px; padding: 0 12px; 
         }
-        
-        button:hover, .file-btn:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
-        .active-file { background: var(--accent) !important; color: #000; }
-        
-        select { width: auto; border-radius: 20px; padding: 0 10px; font-size: 12px; }
-        input[type="color"] { border: none; width: 30px; height: 30px; cursor: pointer; background: none; }
+        button:hover { background: rgba(255,255,255,0.15); color: var(--accent); }
+        .btn-active { background: var(--accent) !important; color: #000; }
+        .circle-btn { width: 36px; border-radius: 50%; padding: 0; }
 
-        /* ÁREA DE EDIÇÃO */
-        .workspace { flex: 1; display: flex; flex-direction: column; position: relative; }
+        input[type="color"] { border: none; width: 22px; height: 22px; cursor: pointer; background: none; }
 
-        main {
-            flex: 1; overflow-y: auto; padding: 120px 0 80px;
-            display: flex; flex-direction: column; align-items: center; gap: 35px;
-            background: radial-gradient(circle at center, #151515 0%, #000 100%);
-        }
+        /* ÁREA DO EDITOR */
+        .workspace { flex: 1; padding-left: 100px; display: flex; flex-direction: column; }
+        main { flex: 1; overflow-y: auto; padding: 120px 0; display: flex; flex-direction: column; align-items: center; scrollbar-width: none; }
 
-        .page {
-            background: var(--glass-sheet); width: var(--page-width);
-            min-height: var(--page-height); height: var(--page-height);
-            padding: 28mm; border-radius: var(--radius);
-            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
-            outline: none; font-size: 12pt; line-height: 1.6; color: var(--text-main, #1d1d1f);
-            overflow: hidden; position: relative;
+        .editor-page {
+            background: var(--page-bg); color: var(--text-color);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8); outline: none;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        footer {
-            background: #000; color: #444; padding: 12px 30px;
-            display: flex; justify-content: space-between; font-size: 10px;
-            border-top: 1px solid #111; font-family: 'JetBrains Mono';
-        }
+        .mode-a4 { width: 210mm; min-height: 297mm; padding: 25mm; border-radius: 4px; font-size: 12pt; }
+        .mode-letterboxd { width: 380px; min-height: auto; padding: 40px; border-radius: 35px; text-align: center; }
+
+        /* WIDGET UI */
+        .widget-ui { display: none; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 20px; }
+        .mode-letterboxd .widget-ui { display: block; }
+        .rating-stars { color: var(--letterboxd-green); font-size: 26px; margin: 10px 0; display: block; }
+        .author-name { font-family: 'JetBrains Mono'; font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; }
+
+        blockquote { border-left: 3px solid var(--accent); margin: 20px 0; padding-left: 20px; font-style: italic; color: var(--accent); text-align: left; }
+        img { max-width: 100%; border-radius: 15px; margin: 15px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+        footer { background: transparent; color: #555; padding: 15px 40px; font-size: 10px; display: flex; justify-content: space-between; font-family: 'JetBrains Mono'; }
     </style>
 </head>
-<body>
+<body class="dark-mode-page">
 
     <audio id="bg-music" loop>
         <source src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Hedwigs+Theme&filename=22/227448-f6e08872-3f19-4828-9d2a-e837136015a1.mp3" type="audio/mpeg">
@@ -104,9 +99,8 @@
 
     <aside>
         <div class="sidebar-inner">
-            <button onclick="newFile()" title="Novo Filme" style="background:var(--accent); color:#000"><i class="fa fa-plus"></i></button>
-            <div id="file-list" style="display:flex; flex-direction:column; gap:10px;">
-                </div>
+            <button onclick="newFile()" class="circle-btn btn-active" title="Novo Projeto"><i class="fa fa-plus"></i></button>
+            <div id="file-list" style="display:flex; flex-direction:column; gap:12px;"></div>
         </div>
     </aside>
 
@@ -114,102 +108,129 @@
         <header>
             <div class="toolbar">
                 <div class="group">
-                    <button onclick="toggleMusic()"><i class="fa fa-wand-sparkles"></i></button>
-                    <button onclick="toggleDarkMode()"><i class="fa fa-moon"></i></button>
+                    <select id="mode-selector" onchange="updateProjectMode(this.value)" style="color: var(--accent); font-weight: 800; background: #222; width: 135px;">
+                        <option value="mode-a4">📄 MODO A4</option>
+                        <option value="mode-letterboxd">🎬 MODO STORY</option>
+                    </select>
                 </div>
 
                 <div class="group">
-                    <select onchange="exec('fontName', this.value)">
+                    <select onchange="exec('fontName', this.value)" style="width: 100px;">
                         <option value="Inter">Inter</option>
                         <option value="Lora">Lora</option>
                         <option value="Playfair Display">Playfair</option>
                         <option value="JetBrains Mono">Mono</option>
                     </select>
-                    <button onclick="exec('bold')"><i class="fa fa-bold"></i></button>
-                    <button onclick="exec('italic')"><i class="fa fa-italic"></i></button>
+                    <select onchange="exec('fontSize', this.value)" style="width: 60px;">
+                        <option value="3">Size</option>
+                        <option value="1">P</option>
+                        <option value="3">M</option>
+                        <option value="5">G</option>
+                        <option value="7">XG</option>
+                    </select>
+                </div>
+
+                <div class="group">
+                    <button class="circle-btn" onclick="exec('bold')"><i class="fa fa-bold"></i></button>
+                    <button class="circle-btn" onclick="exec('italic')"><i class="fa fa-italic"></i></button>
                     <input type="color" onchange="exec('foreColor', this.value)" title="Cor do Texto">
+                    <button class="circle-btn" onclick="toggleDarkMode()" title="Alternar Modo Escuro/Claro"><i class="fa fa-circle-half-stroke"></i></button>
                 </div>
 
                 <div class="group">
-                    <button onclick="exec('justifyLeft')"><i class="fa fa-align-left"></i></button>
-                    <button onclick="exec('justifyCenter')"><i class="fa fa-align-center"></i></button>
-                    <button onclick="exec('justifyFull')"><i class="fa fa-align-justify"></i></button>
+                    <button class="circle-btn" onclick="exec('justifyLeft')"><i class="fa fa-align-left"></i></button>
+                    <button class="circle-btn" onclick="exec('justifyCenter')"><i class="fa fa-align-center"></i></button>
+                    <button class="circle-btn" onclick="exec('formatBlock', 'blockquote')" title="Citação"><i class="fa fa-quote-left"></i></button>
                 </div>
 
                 <div class="group">
-                    <button onclick="exportStory()" style="color:#00e054;"><i class="fa fa-paper-plane"></i></button>
-                    <button onclick="saveCurrent()"><i class="fa fa-save"></i></button>
+                    <button class="circle-btn" onclick="toggleMusic()" title="Soundtrack"><i class="fa fa-wand-sparkles"></i></button>
+                    <button onclick="exportPro()" style="color: var(--letterboxd-green); font-weight: bold;"><i class="fa fa-paper-plane"></i> ENVIAR</button>
+                    <button class="circle-btn" onclick="saveCurrent()"><i class="fa fa-save"></i></button>
                 </div>
             </div>
         </header>
 
-        <main id="editor-container" ondrop="dropImage(event)" ondragover="event.preventDefault()">
-            </main>
+        <main ondrop="dropImage(event)" ondragover="event.preventDefault()">
+            <div id="editor" class="editor-page mode-a4" contenteditable="true">
+                <div class="widget-ui" contenteditable="false">
+                    <div class="author-name">Análise por @seuusuario</div>
+                    <h1 style="margin: 10px 0; font-size: 28px;">Título</h1>
+                    <div class="rating-stars">★★★★★</div>
+                </div>
+                <div class="main-content">Escreva sua obra prima aqui...</div>
+            </div>
+        </main>
 
         <footer>
-            <div id="stats">Palavras: 0 | 0 min</div>
-            <div id="save-status">Sistema Ativo</div>
-            <div id="pg-count">Páginas: 1</div>
+            <div id="save-status">Vassouras prontas...</div>
+            <div id="stats">LiquidGlass Elite | Modo de Edição Total Ativo</div>
         </footer>
     </div>
 
     <script>
         let currentFileId = 'default';
-        let files = JSON.parse(localStorage.getItem('lg_elite_v4')) || { 
-            'default': { name: 'Crítica 1', content: '<div class="page" contenteditable="true"><h1>Título do Filme</h1><p>Comece a escrever...</p></div>' }
+        let files = JSON.parse(localStorage.getItem('lg_master_v9')) || { 
+            'default': { name: 'Projeto 1', content: document.getElementById('editor').innerHTML, mode: 'mode-a4' }
         };
 
         function exec(cmd, val = null) { document.execCommand(cmd, false, val); }
+
+        function toggleDarkMode() { 
+            document.body.classList.toggle('dark-mode-page'); 
+            document.getElementById('save-status').innerText = "Modo de cor alterado.";
+        }
+
+        function updateProjectMode(mode) {
+            applyModeStyle(mode);
+            saveCurrent();
+        }
+
+        function applyModeStyle(mode) {
+            const editor = document.getElementById('editor');
+            editor.className = 'editor-page ' + mode;
+            document.getElementById('mode-selector').value = mode;
+            renderFileList(); 
+        }
 
         function renderFileList() {
             const list = document.getElementById('file-list');
             list.innerHTML = '';
             Object.keys(files).forEach(id => {
                 const btn = document.createElement('div');
-                btn.className = `file-btn ${id === currentFileId ? 'active-file' : ''}`;
-                btn.innerHTML = `<i class="fa fa-film"></i>`;
-                btn.title = files[id].name;
+                btn.className = `file-btn circle-btn ${id === currentFileId ? 'btn-active' : ''}`;
+                btn.innerHTML = `<i class="fa ${files[id].mode === 'mode-a4' ? 'fa-file-alt' : 'fa-film'}"></i>`;
                 btn.onclick = () => loadFile(id);
                 list.appendChild(btn);
             });
         }
 
-        function newFile() {
-            const name = prompt("Nome da obra:");
-            if(name) {
-                const id = 'f' + Date.now();
-                files[id] = { name: name, content: `<div class="page" contenteditable="true"><h1>${name}</h1><p>Inicie sua análise...</p></div>` };
-                saveAll();
-                loadFile(id);
-            }
+        function loadFile(id) {
+            saveCurrent();
+            currentFileId = id;
+            const file = files[id];
+            document.getElementById('editor').innerHTML = file.content;
+            applyModeStyle(file.mode || 'mode-a4');
         }
 
-        function loadFile(id) {
-            currentFileId = id;
-            document.getElementById('editor-container').innerHTML = files[id].content;
-            renderFileList();
-            updateStats();
+        function newFile() {
+            const name = prompt("Nome do projeto:");
+            if(name) {
+                const id = 'f' + Date.now();
+                files[id] = { name: name, content: '<div class="widget-ui" contenteditable="false"><div class="author-name">Análise por @seuusuario</div><h1 style="margin: 10px 0; font-size: 28px;">Título</h1><div class="rating-stars">★★★★★</div></div><div class="main-content">Nova escrita...</div>', mode: 'mode-a4' };
+                saveAll(); loadFile(id);
+            }
         }
 
         function saveCurrent() {
-            files[currentFileId].content = document.getElementById('editor-container').innerHTML;
+            if(!files[currentFileId]) return;
+            files[currentFileId].content = document.getElementById('editor').innerHTML;
+            files[currentFileId].mode = document.getElementById('mode-selector').value;
             saveAll();
-            document.getElementById('save-status').innerText = "Salvo: " + new Date().toLocaleTimeString();
+            document.getElementById('save-status').innerText = "Projeto salvo: " + new Date().toLocaleTimeString();
         }
 
-        function saveAll() { localStorage.setItem('lg_elite_v4', JSON.stringify(files)); }
-
-        document.getElementById('editor-container').addEventListener('input', () => {
-            const container = document.getElementById('editor-container');
-            const lastPage = container.lastElementChild;
-            if (lastPage.scrollHeight > lastPage.offsetHeight) {
-                const p = document.createElement('div');
-                p.className = 'page'; p.contentEditable = true;
-                container.appendChild(p);
-                p.focus();
-            }
-            updateStats();
-        });
+        function saveAll() { localStorage.setItem('lg_master_v9', JSON.stringify(files)); }
 
         function dropImage(e) {
             e.preventDefault();
@@ -217,33 +238,46 @@
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
-                    const img = `<img src="${ev.target.result}" style="max-width:100%; border-radius:20px; margin: 20px 0; box-shadow: 0 20px 40px rgba(0,0,0,0.3)">`;
-                    document.execCommand('insertHTML', false, img);
+                    const img = `<img src="${ev.target.result}" contenteditable="false">`;
+                    exec('insertHTML', img);
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        function updateStats() {
-            const text = document.getElementById('editor-container').innerText;
-            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-            document.getElementById('stats').innerText = `${words} palavras | ${Math.ceil(words/200)} min`;
-            document.getElementById('pg-count').innerText = `Pgs: ${document.querySelectorAll('.page').length}`;
-        }
+        async function exportPro() {
+            const editor = document.getElementById('editor');
+            const isStory = editor.classList.contains('mode-letterboxd');
+            const originalBg = editor.style.background;
+            const originalShadow = editor.style.boxShadow;
 
-        function toggleMusic() { const m = document.getElementById('bg-music'); m.paused ? m.play() : m.pause(); }
-        function toggleDarkMode() { document.body.classList.toggle('dark-mode-page'); }
+            if (isStory) {
+                editor.style.background = 'transparent';
+                editor.style.boxShadow = 'none';
+            }
 
-        async function exportStory() {
-            const canvas = await html2canvas(document.getElementById('editor-container').firstElementChild, { scale: 3, borderRadius: 25 });
+            const canvas = await html2canvas(editor, { 
+                scale: 4, 
+                backgroundColor: isStory ? null : (document.body.classList.contains('dark-mode-page') ? '#181818' : '#ffffff'),
+                useCORS: true 
+            });
+
+            editor.style.background = originalBg;
+            editor.style.boxShadow = originalShadow;
+
             const link = document.createElement('a');
-            link.download = 'liquid-story.png';
-            link.href = canvas.toDataURL();
+            link.download = `Liquid-${files[currentFileId].name}.png`;
+            link.href = canvas.toDataURL("image/png");
             link.click();
         }
 
-        setInterval(saveCurrent, 10000);
+        function toggleMusic() { 
+            const m = document.getElementById('bg-music'); 
+            m.paused ? m.play() : m.pause(); 
+        }
+
         window.onload = () => { renderFileList(); loadFile(currentFileId); };
+        setInterval(saveCurrent, 10000);
     </script>
 </body>
 </html>
