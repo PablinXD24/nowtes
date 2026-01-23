@@ -27,12 +27,12 @@
 
         body {
             margin: 0; font-family: 'Inter', sans-serif;
-            background: #000; /* Fundo base preto sólido */
+            background: #000;
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
             color: #333;
         }
 
-        /* Cortina de Cetim Preta Reta (Personalização Mantida) */
+        /* Cortina de Cetim Preta Reta (Instrução do Usuário) */
         body::before {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(90deg, 
@@ -56,16 +56,10 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .group { display: flex; align-items: center; gap: 5px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 8px; }
-        .group:last-child { border-right: none; }
-
         button, select {
             background: transparent; border: none; padding: 10px; cursor: pointer;
             border-radius: 12px; color: #eee; transition: 0.2s; font-size: 14px;
         }
-
-        button:active { background: rgba(255,255,255,0.2); }
-        select { background: rgba(255,255,255,0.05); color: #fff; outline: none; }
 
         main {
             flex: 1; overflow-y: auto; padding: 80px 15px 100px;
@@ -77,7 +71,6 @@
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             width: var(--page-width);
             height: var(--page-height);
-            min-height: var(--page-height);
             padding: 25mm;
             border: 1px solid var(--glass-stroke);
             border-radius: var(--border-radius);
@@ -86,44 +79,45 @@
             color: #1d1d1f; position: relative;
         }
 
-        /* WIDGET LETTERBOXD (Exportação) */
+        /* --- CORREÇÃO: WIDGET TRANSPARENTE REAL --- */
         #story-render-box {
             position: absolute; left: -9999px;
             width: 500px;
-            background: transparent;
+            background: transparent !important; /* Força transparência no container */
             padding: 40px;
         }
 
         .letterboxd-widget {
-            background: rgba(20, 24, 28, 0.98);
-            border-radius: 24px;
+            background: rgba(20, 24, 28, 0.85); /* Fundo semi-transparente estilo Glass */
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 28px;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            border: 1.5px solid rgba(255,255,255,0.15);
             display: flex;
             flex-direction: column;
+            box-shadow: none; /* Shadow removido para não sujar a transparência do PNG */
         }
 
         .widget-content {
             padding: 35px;
-            color: #9ab;
-            font-size: 22px;
-            line-height: 1.5;
-            min-height: 150px;
+            color: #fff;
+            font-size: 24px;
+            line-height: 1.4;
+            font-weight: 400;
         }
 
-        .widget-content h1 { color: #fff; margin-bottom: 15px; font-weight: 800; }
+        .widget-content h1 { font-size: 32px; margin-bottom: 10px; font-weight: 800; }
 
         .widget-footer {
-            background: #2c3440;
-            padding: 15px 35px;
+            background: rgba(44, 52, 64, 0.5); /* Rodapé sutil */
+            padding: 20px 35px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 32px; height: 32px; background: linear-gradient(45deg, var(--accent), #5AC8FA); border-radius: 50%; }
+        .avatar { width: 32px; height: 32px; background: linear-gradient(45deg, var(--letterboxd-orange), var(--letterboxd-blue)); border-radius: 50%; }
         .username { color: #fff; font-weight: 600; font-size: 17px; }
         
         .letterboxd-logo { display: flex; }
@@ -136,11 +130,14 @@
             padding: 10px 20px; font-size: 10px; color: #666;
             background: rgba(5, 5, 5, 0.98); border-top: 1px solid rgba(255,255,255,0.05);
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 1001;
         }
     </style>
 </head>
 <body class="f-inter">
+
+    <audio id="bg-music" loop>
+        <source src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Hedwigs+Theme&filename=22/227448-f6e08872-3f19-4828-9d2a-e837136015a1.mp3" type="audio/mpeg">
+    </audio>
 
     <div id="story-render-box">
         <div class="letterboxd-widget" id="widget-card">
@@ -162,10 +159,9 @@
     <header>
         <div class="toolbar">
             <div class="group">
+                <button onclick="toggleMusic()"><i class="fa fa-magic"></i></button>
                 <select id="fontFamily" onchange="applyFont(this.value)">
                     <option value="f-inter">Inter</option>
-                    <option value="f-space">Space</option>
-                    <option value="f-code">Code</option>
                     <option value="f-serif">Serif</option>
                 </select>
             </div>
@@ -174,8 +170,7 @@
                 <button onclick="addNewPage()"><i class="fa fa-plus-circle"></i></button>
             </div>
             <div class="group">
-                <button onclick="generateStory()" style="color: var(--letterboxd-green);"><i class="fa-solid fa-square-poll-vertical"></i> Widget</button>
-                <button onclick="exportToPDF()" style="color: #ff453a;"><i class="fa fa-file-pdf"></i></button>
+                <button onclick="generateStory()" style="color: var(--letterboxd-green); font-weight: bold;"><i class="fa-solid fa- wand-magic-sparkles"></i> Gerar Widget Transparente</button>
                 <button onclick="saveDoc()" style="color: var(--accent);"><i class="fa fa-save"></i></button>
             </div>
         </div>
@@ -183,14 +178,14 @@
 
     <main id="document-container">
         <div class="page" contenteditable="true" id="p1">
-            <h1>Sua Crítica</h1>
-            <p>Clique em Widget para exportar este texto no formato Letterboxd com fundo transparente.</p>
+            <h1>Título do Filme</h1>
+            <p>Escreva sua crítica aqui. Ao clicar em Gerar Widget, este texto será exportado com fundo transparente, ideal para Stories.</p>
         </div>
     </main>
 
     <footer>
         <div id="stats">Pgs: 1</div>
-        <div>LIQUIDGLASS | NOIR EDITION</div>
+        <div>LIQUIDGLASS | TRANSPARENT WIDGET</div>
         <div id="status">Pronto</div>
     </footer>
 
@@ -198,30 +193,31 @@
         const container = document.getElementById('document-container');
         let authorName = localStorage.getItem('liquid_author') || "seu_perfil";
 
+        function toggleMusic() {
+            const music = document.getElementById('bg-music');
+            music.paused ? music.play() : music.pause();
+        }
+
         function exec(cmd) { document.execCommand(cmd, false, null); }
 
-        function applyFont(fontClass) {
-            document.body.className = fontClass;
-            localStorage.setItem('liquid_pref_font', fontClass);
-        }
+        function applyFont(fontClass) { document.body.className = fontClass; }
 
         function addNewPage() {
             const newPage = document.createElement('div');
             newPage.className = 'page';
             newPage.contentEditable = true;
             container.appendChild(newPage);
-            newPage.focus();
             updateStats();
         }
 
         async function generateStory() {
             const status = document.getElementById('status');
             if (!localStorage.getItem('liquid_author')) {
-                const name = prompt("Seu nome de usuário:", authorName);
+                const name = prompt("Seu nome de usuário Letterboxd:", authorName);
                 if (name) { authorName = name; localStorage.setItem('liquid_author', name); }
             }
 
-            status.innerText = "Gerando PNG...";
+            status.innerText = "Renderizando Transparência...";
             const widgetText = document.getElementById('widget-text');
             const widgetUser = document.getElementById('widget-user');
             const activePage = container.querySelector('.page:focus-within') || container.firstElementChild;
@@ -230,10 +226,12 @@
             widgetUser.innerText = authorName.startsWith('@') ? authorName : '@' + authorName;
             
             try {
+                // A mágica da transparência ocorre aqui com backgroundColor: null
                 const canvas = await html2canvas(document.getElementById('story-render-box'), {
                     backgroundColor: null, 
-                    scale: 3,
-                    logging: false
+                    scale: 4, // Ultra qualidade
+                    logging: false,
+                    useCORS: true
                 });
 
                 canvas.toBlob(async (blob) => {
@@ -242,24 +240,18 @@
                         await navigator.share({ files: [file] });
                     } else {
                         const link = document.createElement('a');
-                        link.download = 'widget-transparente.png';
-                        link.href = canvas.toDataURL();
+                        link.download = 'widget-letterboxd-transparente.png';
+                        link.href = canvas.toDataURL("image/png");
                         link.click();
                     }
-                    status.innerText = "Exportado!";
-                });
-            } catch (err) { status.innerText = "Erro"; }
+                    status.innerText = "Exportado com Sucesso!";
+                }, 'image/png');
+            } catch (err) { status.innerText = "Erro na transparência"; }
             setTimeout(() => status.innerText = "Pronto", 2000);
         }
 
-        container.addEventListener('input', updateStats);
         function updateStats() {
             document.getElementById('stats').innerText = `Pgs: ${container.querySelectorAll('.page').length}`;
-        }
-
-        function exportToPDF() {
-            const opt = { margin: 0, filename: 'doc.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } };
-            html2pdf().set(opt).from(container).save();
         }
 
         function saveDoc() {
