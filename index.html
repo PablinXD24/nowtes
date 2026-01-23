@@ -236,19 +236,36 @@
 
         async function exportPro() {
             const editor = document.getElementById('editor');
-            // Removemos sombras e bordas temporariamente para uma captura limpa
             const originalShadow = editor.style.boxShadow;
             editor.style.boxShadow = 'none';
 
             const canvas = await html2canvas(editor, { 
                 scale: 3, 
-                backgroundColor: null, // Garante fundo transparente fora do modelo
+                backgroundColor: null, 
                 logging: false,
                 useCORS: true 
             });
 
             editor.style.boxShadow = originalShadow;
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+            const file = new File([blob], `Liquid-${files[currentFileId].name}.png`, { type: 'image/png' });
 
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Minha Obra Prima',
+                        text: 'Confira minha análise no LiquidGlass Pro'
+                    });
+                } catch (err) {
+                    downloadCanvas(canvas);
+                }
+            } else {
+                downloadCanvas(canvas);
+            }
+        }
+
+        function downloadCanvas(canvas) {
             const link = document.createElement('a');
             link.download = `Liquid-${files[currentFileId].name}.png`;
             link.href = canvas.toDataURL("image/png");
