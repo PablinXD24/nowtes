@@ -48,8 +48,7 @@
         .toolbar { 
             background: var(--toolbar-bg); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); 
             padding: 8px 20px; border-radius: 60px; display: flex; gap: 10px; align-items: center; 
-            box-shadow: 0 15px 50px rgba(0,0,0,0.6); max-width: 95%; flex-wrap: nowrap;
-            overflow-x: auto; scrollbar-width: none;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6); max-width: 95%; overflow-x: auto; scrollbar-width: none;
         }
         .toolbar::-webkit-scrollbar { display: none; }
         
@@ -65,18 +64,17 @@
         .btn-active { background: var(--accent) !important; color: #000; }
         .circle-btn { width: 32px; border-radius: 50%; padding: 0; flex-shrink: 0; }
 
-        input[type="color"] { border: none; width: 20px; height: 20px; cursor: pointer; background: none; padding: 0; margin: 0 5px; }
+        input[type="color"] { border: none; width: 22px; height: 22px; cursor: pointer; background: none; padding: 0; margin: 0 5px; }
 
         /* EDITOR */
         .workspace { flex: 1; display: flex; flex-direction: column; width: 100%; }
         main { flex: 1; overflow-y: auto; padding: 120px 20px; display: flex; flex-direction: column; align-items: center; scrollbar-width: none; }
-        main::-webkit-scrollbar { display: none; }
 
         .editor-page {
             background: var(--page-bg); color: var(--text-color);
             box-shadow: 0 40px 100px rgba(0,0,0,0.8); outline: none;
             transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-            max-width: 100%;
+            max-width: 100%; position: relative;
         }
 
         .mode-a4 { width: 210mm; min-height: 297mm; padding: 25mm; border-radius: 4px; font-size: 12pt; }
@@ -84,24 +82,26 @@
 
         .widget-ui { display: none; margin-bottom: 25px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 20px; }
         .mode-letterboxd .widget-ui { display: block; }
-        .rating-stars { color: var(--letterboxd-green); font-size: 26px; margin: 10px 0; display: block; }
-        .author-name { font-family: 'JetBrains Mono'; font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; }
-
-        blockquote { border-left: 3px solid var(--accent); margin: 20px 0; padding-left: 20px; font-style: italic; color: var(--accent); text-align: left; }
-        img { max-width: 100%; border-radius: 15px; margin: 15px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .rating-stars { color: var(--letterboxd-green); font-size: 26px; margin: 10px 0; }
 
         footer { background: transparent; color: #555; padding: 15px 20px; font-size: 10px; display: flex; justify-content: space-between; font-family: 'JetBrains Mono'; }
 
-        /* MOBILE RESPONSIVITY */
+        /* MODAL */
+        #share-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #222; padding: 30px; border-radius: 25px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 15px;
+        }
+
         @media (max-width: 768px) {
             aside { position: fixed; bottom: 80px; left: 50%; top: auto; transform: translateX(-50%); flex-direction: row; }
-            .sidebar-inner { flex-direction: row; padding: 8px 15px; }
+            .sidebar-inner { flex-direction: row; }
             #file-list { flex-direction: row !important; }
-            .workspace { padding-left: 0; }
-            .mode-a4 { width: 95vw; min-height: 120vw; padding: 20px; font-size: 11pt; }
-            .mode-letterboxd { width: 90vw; padding: 30px 20px; }
-            header { padding: 10px; }
-            main { padding-top: 80px; }
+            .mode-a4 { width: 95vw; padding: 20px; }
+            .mode-letterboxd { width: 90vw; }
         }
     </style>
 </head>
@@ -113,16 +113,28 @@
 
     <aside>
         <div class="sidebar-inner">
-            <button onclick="newFile()" class="circle-btn btn-active" title="Novo Projeto"><i class="fa fa-plus"></i></button>
+            <button onclick="newFile()" class="circle-btn btn-active"><i class="fa fa-plus"></i></button>
             <div id="file-list" style="display:flex; flex-direction:column; gap:12px;"></div>
         </div>
     </aside>
+
+    <div id="share-modal" onclick="this.style.display='none'">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 style="margin:0 0 10px 0;">Compartilhar Magia</h3>
+            <button onclick="exportPro('download')" style="background: var(--accent); color: #000; font-weight: bold; height: 45px; border-radius: 12px;">
+                <i class="fa fa-download"></i> Baixar Imagem (PNG)
+            </button>
+            <button onclick="shareNative()" style="background: rgba(255,255,255,0.1); height: 45px; border-radius: 12px; color: white;">
+                <i class="fa fa-share-nodes"></i> Enviar para Redes
+            </button>
+        </div>
+    </div>
 
     <div class="workspace">
         <header>
             <div class="toolbar">
                 <div class="group">
-                    <select id="mode-selector" onchange="updateProjectMode(this.value)" style="color: var(--accent); font-weight: 800; background: #222; width: 110px;">
+                    <select id="mode-selector" onchange="updateProjectMode(this.value)" style="color: var(--accent); font-weight: 800; background: #222;">
                         <option value="mode-a4">A4</option>
                         <option value="mode-letterboxd">STORY</option>
                     </select>
@@ -132,27 +144,50 @@
                         <option value="Playfair Display">Playfair</option>
                         <option value="JetBrains Mono">Mono</option>
                     </select>
+                    <select onchange="exec('fontSize', this.value)" style="width: 50px;">
+                        <option value="3">Med</option>
+                        <option value="1">Peq</option>
+                        <option value="5">Grd</option>
+                        <option value="7">U-Grd</option>
+                    </select>
                 </div>
+
                 <div class="group">
-                    <button class="circle-btn" onclick="exec('bold')"><i class="fa fa-bold"></i></button>
-                    <button class="circle-btn" onclick="exec('italic')"><i class="fa fa-italic"></i></button>
-                    <input type="color" onchange="exec('foreColor', this.value)">
+                    <button class="circle-btn" onclick="exec('bold')" title="Negrito"><i class="fa fa-bold"></i></button>
+                    <button class="circle-btn" onclick="exec('italic')" title="Itálico"><i class="fa fa-italic"></i></button>
+                    <button class="circle-btn" onclick="exec('underline')" title="Sublinhado"><i class="fa fa-underline"></i></button>
+                    <button class="circle-btn" onclick="exec('strikeThrough')" title="Riscado"><i class="fa fa-strikethrough"></i></button>
+                    <input type="color" onchange="exec('foreColor', this.value)" title="Cor da Fonte">
                 </div>
+
                 <div class="group">
                     <button class="circle-btn" onclick="exec('justifyLeft')"><i class="fa fa-align-left"></i></button>
                     <button class="circle-btn" onclick="exec('justifyCenter')"><i class="fa fa-align-center"></i></button>
-                    <button class="circle-btn" onclick="insertImagePrompt()"><i class="fa fa-image"></i></button>
+                    <button class="circle-btn" onclick="exec('justifyRight')"><i class="fa fa-align-right"></i></button>
                 </div>
+
+                <div class="group">
+                    <button class="circle-btn" onclick="exec('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
+                    <button class="circle-btn" onclick="exec('insertOrderedList')"><i class="fa fa-list-ol"></i></button>
+                    <button class="circle-btn" onclick="exec('indent')"><i class="fa fa-indent"></i></button>
+                    <button class="circle-btn" onclick="exec('outdent')"><i class="fa fa-outdent"></i></button>
+                </div>
+
+                <div class="group">
+                    <button class="circle-btn" onclick="insertImagePrompt()"><i class="fa fa-image"></i></button>
+                    <button class="circle-btn" onclick="exec('removeFormat')" title="Limpar Estilos"><i class="fa fa-eraser"></i></button>
+                </div>
+
                 <div class="group">
                     <button class="circle-btn" onclick="toggleDarkMode()"><i class="fa fa-circle-half-stroke"></i></button>
                     <button class="circle-btn" onclick="toggleMusic()"><i class="fa fa-wand-sparkles"></i></button>
-                    <button onclick="exportPro()" style="color: var(--letterboxd-green); font-weight: bold;"><i class="fa fa-paper-plane"></i></button>
+                    <button onclick="document.getElementById('share-modal').style.display='flex'" style="color: var(--letterboxd-green); font-weight: bold;"><i class="fa fa-paper-plane"></i></button>
                     <button class="circle-btn" onclick="saveCurrent()"><i class="fa fa-save"></i></button>
                 </div>
             </div>
         </header>
 
-        <main ondrop="dropImage(event)" ondragover="event.preventDefault()">
+        <main>
             <div id="editor" class="editor-page mode-a4" contenteditable="true">
                 <div class="widget-ui" contenteditable="false">
                     <div class="author-name">Análise por @seuusuario</div>
@@ -164,36 +199,38 @@
         </main>
 
         <footer>
-            <div id="save-status">Magia carregada...</div>
-            <div id="stats">Elite Editor</div>
+            <div id="save-status">Pronto para a magia.</div>
+            <div id="stats">LiquidGlass Elite</div>
         </footer>
     </div>
 
     <script>
         let currentFileId = 'default';
         let files = JSON.parse(localStorage.getItem('lg_master_v9')) || { 
-            'default': { name: 'Projeto 1', content: '<div class="widget-ui" contenteditable="false"><div class="author-name">Análise por @seuusuario</div><h1 style="margin: 10px 0; font-size: 28px;">Título</h1><div class="rating-stars">★★★★★</div></div><div class="main-content">Escreva sua obra prima aqui...</div>', mode: 'mode-a4' }
+            'default': { name: 'Projeto 1', content: 'Escreva sua obra prima aqui...', mode: 'mode-a4' }
         };
 
-        function exec(cmd, val = null) { 
-            document.execCommand(cmd, false, val); 
-            document.getElementById('editor').focus();
-        }
-
+        function exec(cmd, val = null) { document.execCommand(cmd, false, val); document.getElementById('editor').focus(); }
         function toggleDarkMode() { document.body.classList.toggle('dark-mode-page'); }
+        function toggleMusic() { const m = document.getElementById('bg-music'); m.paused ? m.play() : m.pause(); }
 
         function insertImagePrompt() {
-            const url = prompt("URL da imagem:");
+            const url = prompt("Cole a URL da imagem:");
             if(url) exec('insertImage', url);
         }
 
-        function updateProjectMode(mode) { applyModeStyle(mode); saveCurrent(); }
-
-        function applyModeStyle(mode) {
+        function updateProjectMode(mode) { 
             const editor = document.getElementById('editor');
             editor.className = 'editor-page ' + mode;
-            document.getElementById('mode-selector').value = mode;
-            renderFileList(); 
+            saveCurrent();
+        }
+
+        function saveCurrent() {
+            if(!files[currentFileId]) return;
+            files[currentFileId].content = document.getElementById('editor').innerHTML;
+            files[currentFileId].mode = document.getElementById('mode-selector').value;
+            localStorage.setItem('lg_master_v9', JSON.stringify(files));
+            document.getElementById('save-status').innerText = "Salvo: " + new Date().toLocaleTimeString();
         }
 
         function renderFileList() {
@@ -209,72 +246,55 @@
         }
 
         function loadFile(id) {
-            saveCurrent(); currentFileId = id;
+            currentFileId = id;
             const file = files[id];
             document.getElementById('editor').innerHTML = file.content;
-            applyModeStyle(file.mode || 'mode-a4');
+            document.getElementById('mode-selector').value = file.mode;
+            document.getElementById('editor').className = 'editor-page ' + file.mode;
+            renderFileList();
         }
 
         function newFile() {
-            const name = prompt("Nome:");
+            const name = prompt("Nome do projeto:");
             if(name) {
                 const id = 'f' + Date.now();
-                files[id] = { name: name, content: '<div class="main-content">Nova escrita...</div>', mode: 'mode-a4' };
-                saveAll(); loadFile(id);
+                files[id] = { name: name, content: 'Nova escrita...', mode: 'mode-a4' };
+                loadFile(id);
             }
         }
 
-        function saveCurrent() {
-            if(!files[currentFileId]) return;
-            files[currentFileId].content = document.getElementById('editor').innerHTML;
-            files[currentFileId].mode = document.getElementById('mode-selector').value;
-            saveAll();
-            document.getElementById('save-status').innerText = "Salvo: " + new Date().toLocaleTimeString();
-        }
-
-        function saveAll() { localStorage.setItem('lg_master_v9', JSON.stringify(files)); }
-
-        async function exportPro() {
+        async function exportPro(action = 'download') {
             const editor = document.getElementById('editor');
             const originalShadow = editor.style.boxShadow;
             editor.style.boxShadow = 'none';
 
             const canvas = await html2canvas(editor, { 
                 scale: 3, 
-                backgroundColor: null, 
-                logging: false,
+                backgroundColor: null,
                 useCORS: true 
             });
 
             editor.style.boxShadow = originalShadow;
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-            const file = new File([blob], `Liquid-${files[currentFileId].name}.png`, { type: 'image/png' });
+            const imgData = canvas.toDataURL("image/png");
 
-            if (navigator.share && navigator.canShare({ files: [file] })) {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: 'Minha Obra Prima',
-                        text: 'Confira minha análise no LiquidGlass Pro'
-                    });
-                } catch (err) {
-                    downloadCanvas(canvas);
-                }
-            } else {
-                downloadCanvas(canvas);
+            if(action === 'download') {
+                const link = document.createElement('a');
+                link.download = `Liquid-${files[currentFileId].name}.png`;
+                link.href = imgData;
+                link.click();
             }
+            return imgData;
         }
 
-        function downloadCanvas(canvas) {
-            const link = document.createElement('a');
-            link.download = `Liquid-${files[currentFileId].name}.png`;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        }
-
-        function toggleMusic() { 
-            const m = document.getElementById('bg-music'); 
-            m.paused ? m.play() : m.pause(); 
+        async function shareNative() {
+            const imgData = await exportPro('return');
+            const blob = await (await fetch(imgData)).blob();
+            const file = new File([blob], 'obra-prima.png', { type: 'image/png' });
+            if (navigator.share) {
+                navigator.share({ files: [file], title: 'LiquidGlass Pro' }).catch(console.error);
+            } else {
+                alert("Navegador não suporta compartilhamento direto.");
+            }
         }
 
         window.onload = () => { renderFileList(); loadFile(currentFileId); };
