@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LiquidGlass Pro | Final Master</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Lora:ital,wght@0,400;1,400&family=JetBrains+Mono:wght@300;400&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
         body { 
             margin: 0; font-family: 'Inter', sans-serif; 
             background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); 
-            height: 100vh; display: flex; overflow: hidden; color: #fff;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden; color: #fff;
         }
 
         /* SIDEBAR FLUTUANTE */
@@ -43,36 +43,40 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
-        /* TOOLBAR EXPANDIDA */
+        /* TOOLBAR */
         header { padding: 15px; display: flex; justify-content: center; position: fixed; width: 100%; top: 0; z-index: 1000; }
         .toolbar { 
             background: var(--toolbar-bg); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); 
             padding: 8px 20px; border-radius: 60px; display: flex; gap: 10px; align-items: center; 
-            box-shadow: 0 15px 50px rgba(0,0,0,0.6); max-width: 98%; flex-wrap: wrap;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6); max-width: 95%; flex-wrap: nowrap;
+            overflow-x: auto; scrollbar-width: none;
         }
+        .toolbar::-webkit-scrollbar { display: none; }
         
-        .group { display: flex; gap: 5px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 10px; align-items: center; }
+        .group { display: flex; gap: 5px; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 10px; align-items: center; flex-shrink: 0; }
         .group:last-child { border: none; }
 
         button, select, .file-btn { 
             background: rgba(255,255,255,0.05); border: none; color: #fff; cursor: pointer; 
             height: 32px; border-radius: 16px; display: flex; align-items: center; 
-            justify-content: center; transition: 0.2s; font-size: 12px; padding: 0 10px; 
+            justify-content: center; transition: 0.2s; font-size: 12px; padding: 0 10px; flex-shrink: 0;
         }
         button:hover { background: rgba(255,255,255,0.15); color: var(--accent); }
         .btn-active { background: var(--accent) !important; color: #000; }
-        .circle-btn { width: 32px; border-radius: 50%; padding: 0; }
+        .circle-btn { width: 32px; border-radius: 50%; padding: 0; flex-shrink: 0; }
 
         input[type="color"] { border: none; width: 20px; height: 20px; cursor: pointer; background: none; padding: 0; margin: 0 5px; }
 
         /* ÁREA DO EDITOR */
-        .workspace { flex: 1; padding-left: 100px; display: flex; flex-direction: column; }
-        main { flex: 1; overflow-y: auto; padding: 120px 0; display: flex; flex-direction: column; align-items: center; scrollbar-width: none; }
+        .workspace { flex: 1; display: flex; flex-direction: column; width: 100%; }
+        main { flex: 1; overflow-y: auto; padding: 120px 20px; display: flex; flex-direction: column; align-items: center; scrollbar-width: none; }
+        main::-webkit-scrollbar { display: none; }
 
         .editor-page {
             background: var(--page-bg); color: var(--text-color);
             box-shadow: 0 40px 100px rgba(0,0,0,0.8); outline: none;
             transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            max-width: 100%;
         }
 
         .mode-a4 { width: 210mm; min-height: 297mm; padding: 25mm; border-radius: 4px; font-size: 12pt; }
@@ -86,7 +90,44 @@
         blockquote { border-left: 3px solid var(--accent); margin: 20px 0; padding-left: 20px; font-style: italic; color: var(--accent); text-align: left; }
         img { max-width: 100%; border-radius: 15px; margin: 15px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 
-        footer { background: transparent; color: #555; padding: 15px 40px; font-size: 10px; display: flex; justify-content: space-between; font-family: 'JetBrains Mono'; }
+        footer { background: transparent; color: #555; padding: 15px 20px; font-size: 10px; display: flex; justify-content: space-between; font-family: 'JetBrains Mono'; }
+
+        /* RESPONSIVIDADE MOBILE */
+        @media (max-width: 768px) {
+            aside {
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                top: auto;
+                transform: translateX(-50%);
+                flex-direction: row;
+            }
+            .sidebar-inner {
+                flex-direction: row;
+                padding: 8px 15px;
+            }
+            #file-list {
+                flex-direction: row !important;
+            }
+            .workspace { padding-left: 0; }
+            
+            .mode-a4 { 
+                width: 95vw; 
+                min-height: 120vw; 
+                padding: 20px; 
+                font-size: 11pt;
+            }
+            .mode-letterboxd {
+                width: 90vw;
+                padding: 30px 20px;
+            }
+            .toolbar {
+                padding: 5px 15px;
+                border-radius: 25px;
+            }
+            header { padding: 10px; }
+            main { padding-top: 80px; }
+        }
     </style>
 </head>
 <body class="dark-mode-page">
@@ -122,31 +163,23 @@
                     <button class="circle-btn" onclick="exec('bold')" title="Negrito"><i class="fa fa-bold"></i></button>
                     <button class="circle-btn" onclick="exec('italic')" title="Itálico"><i class="fa fa-italic"></i></button>
                     <button class="circle-btn" onclick="exec('underline')" title="Sublinhado"><i class="fa fa-underline"></i></button>
-                    <button class="circle-btn" onclick="exec('strikethrough')" title="Riscado"><i class="fa fa-strikethrough"></i></button>
                 </div>
 
                 <div class="group">
-                    <button class="circle-btn" onclick="exec('subscript')" title="Subscrito"><i class="fa fa-subscript"></i></button>
-                    <button class="circle-btn" onclick="exec('superscript')" title="Sobrescrito"><i class="fa fa-superscript"></i></button>
                     <input type="color" onchange="exec('foreColor', this.value)" title="Cor do Texto">
                 </div>
 
                 <div class="group">
                     <button class="circle-btn" onclick="exec('justifyLeft')"><i class="fa fa-align-left"></i></button>
                     <button class="circle-btn" onclick="exec('justifyCenter')"><i class="fa fa-align-center"></i></button>
-                    <button class="circle-btn" onclick="exec('justifyRight')"><i class="fa fa-align-right"></i></button>
-                    <button class="circle-btn" onclick="exec('justifyFull')"><i class="fa fa-align-justify"></i></button>
                 </div>
 
                 <div class="group">
                     <button class="circle-btn" onclick="exec('insertUnorderedList')" title="Lista"><i class="fa fa-list-ul"></i></button>
-                    <button class="circle-btn" onclick="exec('insertOrderedList')" title="Lista Numérica"><i class="fa fa-list-ol"></i></button>
-                    <button class="circle-btn" onclick="exec('formatBlock', 'blockquote')" title="Citação"><i class="fa fa-quote-left"></i></button>
                     <button class="circle-btn" onclick="insertImagePrompt()" title="Inserir Imagem"><i class="fa fa-image"></i></button>
                 </div>
 
                 <div class="group">
-                    <button class="circle-btn" onclick="exec('removeFormat')" title="Limpar Formatação"><i class="fa fa-eraser"></i></button>
                     <button class="circle-btn" onclick="toggleDarkMode()" title="Modo Escuro/Claro"><i class="fa fa-circle-half-stroke"></i></button>
                     <button class="circle-btn" onclick="toggleMusic()" title="Trilha Sonora"><i class="fa fa-wand-sparkles"></i></button>
                     <button onclick="exportPro()" style="color: var(--letterboxd-green); font-weight: bold;"><i class="fa fa-paper-plane"></i></button>
@@ -168,14 +201,14 @@
 
         <footer>
             <div id="save-status">Magia carregada...</div>
-            <div id="stats">LiquidGlass Elite | Editor Master</div>
+            <div id="stats">Elite Editor</div>
         </footer>
     </div>
 
     <script>
         let currentFileId = 'default';
         let files = JSON.parse(localStorage.getItem('lg_master_v9')) || { 
-            'default': { name: 'Projeto 1', content: document.getElementById('editor').innerHTML, mode: 'mode-a4' }
+            'default': { name: 'Projeto 1', content: '<div class="widget-ui" contenteditable="false"><div class="author-name">Análise por @seuusuario</div><h1 style="margin: 10px 0; font-size: 28px;">Título</h1><div class="rating-stars">★★★★★</div></div><div class="main-content">Escreva sua obra prima aqui...</div>', mode: 'mode-a4' }
         };
 
         function exec(cmd, val = null) { 
@@ -239,7 +272,7 @@
             files[currentFileId].content = document.getElementById('editor').innerHTML;
             files[currentFileId].mode = document.getElementById('mode-selector').value;
             saveAll();
-            document.getElementById('save-status').innerText = "Feitiço salvo: " + new Date().toLocaleTimeString();
+            document.getElementById('save-status').innerText = "Salvo: " + new Date().toLocaleTimeString();
         }
 
         function saveAll() { localStorage.setItem('lg_master_v9', JSON.stringify(files)); }
@@ -269,7 +302,7 @@
             }
 
             const canvas = await html2canvas(editor, { 
-                scale: 4, 
+                scale: 2, 
                 backgroundColor: isStory ? null : (document.body.classList.contains('dark-mode-page') ? '#181818' : '#ffffff'),
                 useCORS: true 
             });
